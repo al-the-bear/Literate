@@ -20,6 +20,8 @@ Here is an overview of the file:
 import globals;
 import std.string;
 import std.stdio;
+import std.file;
+import std.regex;
 import std.algorithm: canFind;
 import parser;
 import util;
@@ -71,8 +73,17 @@ the code.
 foreach (b; rootCodeblocks) {
     string filename = b.name;
     File f;
-    if (!noOutput)
+    if (!noOutput) {
+        if( auto matches = matchFirst(filename, regex(r"(?P<dir>([^/]*/)*)")) ) {
+            // writeln("Creating directory" ~ outDir ~ "/" ~ matches["dir"]);
+            mkdirRecurse(outDir ~ "/" ~ matches["dir"]);
+        }else{
+            // writeln("Creating directory" ~ outDir);
+            mkdirRecurse(outDir);
+        }
+
         f = File(outDir ~ "/" ~ filename, "w");
+    }
 
     writeCode(codeblocks, b.name, f, filename, "");
     if (!noOutput)
